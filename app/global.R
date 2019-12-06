@@ -1,5 +1,5 @@
-source("../src/config.R")
-load("../data/data.Rdata")
+source("config.R")
+load("data.Rdata")
 
 
 
