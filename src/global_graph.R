@@ -1,6 +1,4 @@
 # dato un lene
-library(visNetwork)
-library(tidyr)
 create_nodes_edges_htoh <- function(hashtags,ntophashtag){
   # estrazione dei ntophasht hashtag priù frequenti creando la dfm 
   toptag <- names(topfeatures(dfm(hashtags),ntophashtag))
@@ -71,7 +69,7 @@ visNetwork(nodes, edges)%>%
     shadow = FALSE,
     color = list(color = "#0085AF", highlight = "#C62F4B")
   ) %>%
-  visOptions(highlightNearest = list(enabled = T, degree = 1, hover = T)
+  visOptions(nodesIdSelection = T,highlightNearest = list(enabled = T, degree = 1, hover = T)
              #,selectedBy = "group" 
   )%>% 
   visLayout(randomSeed = 11)

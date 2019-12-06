@@ -15,7 +15,6 @@ get_interval <- function(date,num_months){
   return(interval(di,df))
 }
 
-# con: data source
 # restituisce tutti i tweet della tabella 'tweets_dashboard' in formato dataframe con le seguenti variabili
 # - id: id del tweet
 # - text: testo de tweet
@@ -27,9 +26,7 @@ get_interval <- function(date,num_months){
 # - tweetday: giorno del tweet
 # - tweetmonth: mese del tweet
 # - tweetyear: anno del tweet
-select_tweet <- function(con){  
-  tweets<-tbl(con,"tweets_dashboard")
-  #sele dei metadati
+trasform_tweet <- function(tweets){
   tweet_s <- tweets%>%select(id,text,user_screen_name,timestamp_ms)
   tweet_d <- tweet_s%>%collect() # carichiamo i dati dei tweet altrimenti non funziona la conversione a POSIX
   tweet_d <- tweet_d%>%
@@ -43,14 +40,28 @@ select_tweet <- function(con){
       ,year=year(tweetdatetime)
     )
   tweet_d <<- tweet_d%>%select(-timestamp_ms) #  eliminiamo timestamp_ms
-  return(tweet_d)
+}
+
+# con: data source
+select_tweet <- function(con){  
+  tweets<-tbl(con,"tweets_dashboard")
+  #sele dei metadati
+  return(trasform_tweet(tweets))
 }
 
 # corpus su tutti i tweet della tabella 'tweets_dashboard'
-create_corpus <- function(con){
+create_corpus_db <- function(con){
   # selezione dei tweet da database e trasformazione 
   tweet <- select_tweet(con)
   corpus<- tweet%>%corpus()
+  
+  return(corpus)
+}
+
+# corpus di un dataframe
+create_corpus <- function(dataframe){
+  
+    corpus<- dataframe%>%corpus()
   
   return(corpus)
 }
