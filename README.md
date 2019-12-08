@@ -1,5 +1,5 @@
 # RgraphTwitter
-The present application is an examples using graph rappresenting the relation between hashtag in a collection of tweet.
+The present application is an examples using graph rappresenting the relation between hashtag in a collection of tweet. We consider the top 20 hashtags present in the tweets.
 
 We consider 49267 tweet rapresenting the topic of "climate change", gathering during the august 2019 containing the following hashtags:
 
