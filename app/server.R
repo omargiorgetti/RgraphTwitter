@@ -50,7 +50,7 @@ function(input, output, session) {
     )
   
   output$network <- renderVisNetwork({
-    grafo_htoh3(obj[1][[1]],obj[2][[1]])
+    grafo_htoh2(obj[1][[1]],obj[2][[1]])
   })
 }
 

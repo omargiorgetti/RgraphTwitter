@@ -16,12 +16,13 @@ dashboardPage(
     )
   ),
   dashboardBody(
-    fluidRow(title="Rappresentazione tramite Grafo delle relazione tra hashtags in una collezione di Tweets sul cambiamento climatico"),
     fluidRow(
       tabItems(
-        
         tabItem("grafo",
-                visNetworkOutput("network")
+            box(title="Graph rapresentation hashtags relationship in a climate change collection tweets "
+                 ,status = "primary"
+            ,visNetworkOutput("network")
+            )
         ),
         tabItem("data",
                 fluidPage(

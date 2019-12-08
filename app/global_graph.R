@@ -37,23 +37,42 @@ grafo_htoh1 <- function(nodes,edges){
     #,selectedBy = "group" )%>% 
     visEdges(smooth = FALSE,color=list(background='#848484',highlight='red'))%>%
     visNodes(label=NULL)%>%
-    visOptions(nodesIdSelection = T,highlightNearest = list(enabled = T, degree = 1, hover = T))
+    visOptions(nodesIdSelection = list(
+        enabled=T
+        ,main="Selezionare l'hashtag"
+      )
+      ,highlightNearest = list(
+        enabled = T
+        , degree = 1
+        , hover = T
+      )
+    )
 }
 
 
 grafo_htoh2 <- function(nodes,edges){
-visNetwork(nodes, edges)%>%
+visNetwork(nodes, edges,height = "500px",width = "100%")%>%
   visPhysics(solver="forceAtlas2Based",stabilization = TRUE)%>%
+  visNodes(label=NULL)%>%
   visIgraphLayout(layout = "layout_nicely",randomSeed = 1234) %>%
   # visIgraphLayout(physics=TRUE)%>%
   # visOptions(highlightNearest = list(enabled = T, degree = 1, hover = T)
   #,selectedBy = "group" )%>% 
   visEdges(smooth = FALSE,color=list(background='#848484',highlight='red'))%>%
-  visNodes(label=NULL)%>%
-  visOptions(nodesIdSelection = T)
+  visOptions(nodesIdSelection = 
+               list(
+                 enabled=T
+                 ,main="Scegliere l'hashtag"
+                )
+             ,highlightNearest = list(
+               enabled = T
+               , degree = 1
+               , hover = T
+             )
+  )
 }
 grafo_htoh3 <- function(nodes,edges){
-visNetwork(nodes, edges)%>%
+visNetwork(nodes, edges,height = "100%",width = "100%")%>%
   visPhysics(solver="forceAtlas2Based")%>%
   visIgraphLayout()%>%
   visNodes(
@@ -69,7 +88,13 @@ visNetwork(nodes, edges)%>%
     shadow = FALSE,
     color = list(color = "#0085AF", highlight = "#C62F4B")
   ) %>%
-  visOptions(nodesIdSelection = T,highlightNearest = list(enabled = T, degree = 1, hover = T)
+  visOptions(nodesIdSelection = list(enabled=T
+                                     ,main="Scegliere l'hashtag"
+                                     )
+             ,highlightNearest = list(
+               enabled = T
+               , degree = 1
+               , hover = T)
              #,selectedBy = "group" 
   )%>% 
   visLayout(randomSeed = 11)
