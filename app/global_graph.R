@@ -2,21 +2,22 @@
 create_nodes_edges_htoh <- function(hashtags,ntophashtag){
   # estrazione dei ntophasht hashtag priù frequenti creando la dfm 
   toptag_d <- topfeatures(dfm(hashtags),ntophashtag)
-  toptag <- names(topfeatures(dfm(hashtags),ntophashtag))
-  # creazione della matrice di cooccorrenza
+  # creazione della matrice di cooccorrenza 
   tagfcm <- fcm(hashtags,tri=TRUE)
   # riduzione della matrice di cooccorrenza ai soli top hashtags 
-  top_tagfcm <- fcm_select(tagfcm,pattern = toptag)
+  hashtag_sel <- names(toptag_d)
+  top_tagfcm <- fcm_select(tagfcm,pattern = hashtag_sel)
   
   fcm_d <- convert(top_tagfcm,'data.frame')%>%pivot_longer(-document,names_to = "to",values_to = "width")
   fcm_d <- fcm_d%>%
     mutate(from=document)%>%
     select(-document)%>%
     filter(width>0)
-  ssname <- names(toptag_d)  
-  nodes <- data.frame(id=ssname
+  
+  nodes <- data.frame(id=hashtag_sel
                       ,size=rescale(toptag_d,c(5,35))
-                      ,title = paste0("<p>", ssname," - ",toptag_d,"</p>")
+                      ,title = paste0("<p>", hashtag_sel," - ",toptag_d,"</p>")
+                      ,label=NA
                       ,stringsAsFactors = FALSE)
   nodes <- nodes%>%arrange(id)
   edges <- as.data.frame(fcm_d)%>%
@@ -87,6 +88,30 @@ create_nodes_edges_ttot <- function(){
   
 }
 
+  
+grafo_htoh <- function(nodes,edges){
+  visNetwork(nodes, edges
+            ,height = "800px",width = "100%"
+    )%>%
+    #visPhysics(solver="forceAtlas2Based",stabilization = TRUE)%>%
+    visIgraphLayout(layout = "layout_with_fr",randomSeed = 1234) %>%
+    # visIgraphLayout(physics=TRUE)%>%
+    # visOptions(highlightNearest = list(enabled = T, degree = 1, hover = T)
+    #,selectedBy = "group" )%>% 
+    visEdges(color=list(background='#848484',highlight='red',hover='green'))%>%
+    visOptions(nodesIdSelection = 
+                 list(
+                   enabled=T
+                   ,main="Scegliere l'hashtag"
+                 )
+               ,highlightNearest = list(
+                 enabled = T
+                 , degree = 1
+                 , hover = T
+               )
+    )
+}
+
 grafo_htoh1 <- function(nodes,edges){
   visNetwork(nodes, edges)%>%
     visPhysics(solver="barnesHut",stabilization = TRUE, barnesHut = list(gravitationalConstant=-50000))%>%
@@ -108,27 +133,7 @@ grafo_htoh1 <- function(nodes,edges){
 }
 
 
-grafo_htoh2 <- function(nodes,edges){
-visNetwork(nodes, edges,height = "500px",width = "100%")%>%
-  visPhysics(solver="forceAtlas2Based",stabilization = TRUE)%>%
-  visNodes(label=NULL)%>%
-  visIgraphLayout(layout = "layout_nicely",randomSeed = 1234) %>%
-  # visIgraphLayout(physics=TRUE)%>%
-  # visOptions(highlightNearest = list(enabled = T, degree = 1, hover = T)
-  #,selectedBy = "group" )%>% 
-  visEdges(smooth = FALSE,color=list(background='#848484',highlight='red',hover='green'))%>%
-  visOptions(nodesIdSelection = 
-               list(
-                 enabled=T
-                 ,main="Scegliere l'hashtag"
-                )
-             ,highlightNearest = list(
-               enabled = T
-               , degree = 1
-               , hover = T
-             )
-  )
-}
+
 grafo_htoh3 <- function(nodes,edges){
 visNetwork(nodes, edges,height = "100%",width = "100%")%>%
   visPhysics(solver="forceAtlas2Based")%>%

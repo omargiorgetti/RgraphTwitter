@@ -3,7 +3,7 @@ The present application is an examples using graph rappresenting the relation be
 
 The application is visible on cloud on [Shinyapps.io](https://xpasdup.shinyapps.io/RGraphTwitter/) 
 
-We consider 49267 tweet rapresenting the topic of "climate change", gathering during the august 2019 containing the following hashtags:
+We consider 67739 tweet rapresenting the topic of "climate change", gathering on 27/09/2019, the day of climate strike,  containing the following hashtags:
 
 
 "#riconversioneecologica" "#climateaction"          "#strikeforfuture"        "#plasticfree"            "#co2"                   

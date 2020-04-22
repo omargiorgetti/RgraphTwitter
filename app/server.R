@@ -36,11 +36,11 @@ function(input, output, session) {
   })
    # Show the raw data in the form of a data.table
   output$table <- DT::renderDataTable({
-    table <- corpus$documents%>%
-      mutate(link=str_c("<a target='_blank' class='fab fa-twitter' href='http://www.twitter.com/",user_screen_name,"/status/",id,"'></a>"),
-             data=str_glue("{format(tweetdatetime,'%d/%b/%Y %H:%M:%S')}"))%>%
+    table <- data%>%mutate(link=str_c("<a target='_blank' class='fab fa-twitter' href='http://www.twitter.com/",
+                             user_screen_name,"/status/",id,"'></a>"),
+                  data=str_glue("{format(tweetdatetime,'%d/%b/%Y %H:%M:%S')}"))%>%
       select(link
-             ,testo=texts
+             ,testo=text
              ,profilo=user_screen_name
              ,data)%>%
       arrange(data)
@@ -50,7 +50,7 @@ function(input, output, session) {
     )
   
   output$network <- renderVisNetwork({
-    grafo_htoh2(obj[1][[1]],obj[2][[1]])
+    grafo_htoh(obj[1][[1]],obj[2][[1]])
   })
 }
 

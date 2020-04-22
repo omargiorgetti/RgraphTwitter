@@ -3,7 +3,7 @@ ctochar<-function(x){
   h <- str_replace_all(h,"\\'",'')
   h <- str_replace(h,"\\)",'')
   h <- str_trim(h)
-return(h)
+  return(h)
 }
 # restituisce un oggetto lubridate::interval: 
 # - con num_months=1 il mese precendente la data a parametro (date='20/09/2019' risultato ('01/08/2019','31/08/2019')
@@ -27,7 +27,9 @@ get_interval <- function(date,num_months){
 # - tweetmonth: mese del tweet
 # - tweetyear: anno del tweet
 trasform_tweet <- function(tweets){
-  tweet_s <- tweets%>%select(id,text,user_screen_name,timestamp_ms)
+  print('trasform')
+  tweet_s <- tweets%>%select(id,text,user_screen_name,timestamp_ms,topic,followers_count
+                             ,friends_count,tagged,predicted_positive)
   tweet_d <- tweet_s%>%collect() # carichiamo i dati dei tweet altrimenti non funziona la conversione a POSIX
   tweet_d <- tweet_d%>%
     mutate(tweetdatetime=  as.POSIXct(timestamp_ms,origin = '1970-01-01 00:00.00 UTC'))%>%
@@ -39,14 +41,24 @@ trasform_tweet <- function(tweets){
       ,month=month(tweetdatetime)
       ,year=year(tweetdatetime)
     )
-  tweet_d <<- tweet_d%>%select(-timestamp_ms) #  eliminiamo timestamp_ms
+  tweet_d <- tweet_d%>%select(-timestamp_ms) #  eliminiamo timestamp_ms
+  return(tweet_d)
 }
 
+
 # con: data source
-select_tweet <- function(con){  
-  tweets<-tbl(con,"tweets_dashboard")
+select_tweet <- function(con,daterif,period){
+  print('select tweets')
+  tweets<-tbl(con,"tweet_dashboard_all")%>%collect()
+  daterif <- as.POSIXct(daterif)
+  tweets <- trasform_tweet(tweets)
+  if (is.na(daterif)){
+    tweets <- tweets
+  }else{
+    tweets<<- tweets%>%filter(tweetdate %within% get_interval(daterif,period))
+  }
   #sele dei metadati
-  return(trasform_tweet(tweets))
+  return(tweets)
 }
 
 # corpus su tutti i tweet della tabella 'tweets_dashboard'
@@ -61,7 +73,7 @@ create_corpus_db <- function(con){
 # corpus di un dataframe
 create_corpus <- function(dataframe){
   
-    corpus<- dataframe%>%corpus()
+  corpus<- dataframe%>%corpus()
   
   return(corpus)
 }
@@ -81,8 +93,32 @@ create_corpus_period <- function(daterif,con){
 
 # creazione del copus partendo da un file csv
 create_corpus_csv <- function(file){
-  # selezione dei tweet da database e trasformazione 
   tweet <- read_delim(file, delim=';')  
+  corpus<- tweet%>%corpus()
+  return(corpus)
+}
+
+# crea una variabile dummy 
+# utilizza la funzione per convertire le modalità di una variabile
+# in intestazioni di colonna, con fill inserisce 0 dove e' presente NA 
+add_topic_dummy <- function(data){
+  print('dummy')
+  data <- data%>%mutate(dummy = 1) %>% 
+    spread(
+      key = topic, # column to spread 
+      value = dummy,
+      fill = 0
+    )
+  return(data)
+}
+
+# corpus su tutti i tweet della tabella 'tweets_dashboard'
+create_corpus_db_dummy <- function(con,daterif,period){
+  # selezione dei tweet da database e trasformazione
+  print('create db')
+  tweet <- select_tweet(con,daterif,period)
+  
+  tweet <- tweet%>%add_topic_dummy()
   corpus<- tweet%>%corpus()
   return(corpus)
 }
@@ -117,16 +153,16 @@ get_tokens <- function(corpus_,ngrams_){
                  remove_numbers=TRUE, 
                  remove_url = TRUE,  
                  ngrams=ngrams_)%>%
-  # eliminazione dei carattri speciali QT e COMMENT
+    # eliminazione dei carattri speciali QT e COMMENT
     tokens_remove("QT")%>%
     tokens_remove("COMMENT")%>%
-  # riduzione a minuscolo 
-              tokens_tolower()%>%
-  # eliminazione le stopword italiane
-      tokens_remove(sw$word)%>%
-  # eliminazioni di hashtag che corrispondono a stopword, per esempio: #della
-      tokens_remove(sw$hpreword)
-    
+    # riduzione a minuscolo 
+    tokens_tolower()%>%
+    # eliminazione le stopword italiane
+    tokens_remove(sw$word)%>%
+    # eliminazioni di hashtag che corrispondono a stopword, per esempio: #della
+    tokens_remove(sw$hpreword)
+  
   return(tokens)
 }  
 
@@ -135,7 +171,10 @@ get_tokens <- function(corpus_,ngrams_){
 # direttamente all'oggetto corpus
 get_hashtags_from_tokens<- function(tokens_){
   # individuiamo gli hashtag presenti nei tweet
-  hashtag <- tokens_%>%tokens_tolower()%>%tokens_select("#*")
+  t0 <- tokens_%>%tokens_tolower()
+  print('to lower')
+  hashtag<- t0%>%tokens_select("#*")
+  print('select')
   # selezione degli hashtag
   return(hashtag)
 }
@@ -175,7 +214,9 @@ get_tokens_without_mentions_hashtag <- function(tokens_){
 # tramite la funzione tokens() effettua la tokenizzazione.
 # non viene chiamata la get_tokens() perchè è iniutile fare il prerpocessing
 get_hashtags <- function(corpus_){
-  get_hashtags_from_tokens(tokens(corpus_,ngrams=1))
+  t <- tokens(corpus_,ngrams=1)
+  print('token done')
+  get_hashtags_from_tokens(t)
 }
 
 # restituisce le menzioni da un corpus
